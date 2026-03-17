@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SyncSchedule Pro</title>
-    
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-container">
         <header>
-            <h1>SyncSchedule</h1>
+            <div class="brand">
+                <h1>SyncSchedule</h1>
+                <button id="themeToggle" class="secondary-btn">🌙 Dark Mode</button>
+            </div>
             <div id="liveClock">00:00:00</div>
         </header>
 
@@ -33,9 +34,7 @@
 
             <div class="card">
                 <div class="task-list-header">Upcoming events</div>
-                <div id="taskList">
-                    <p style='color:#94a3b8; font-size:0.9rem;'>No tasks scheduled.</p>
-                </div>
+                <div id="taskList"></div>
             </div>
         </div>
     </div>
