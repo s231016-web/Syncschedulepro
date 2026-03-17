@@ -5,7 +5,18 @@
     --card: #ffffff;
     --text-main: #0f172a;
     --text-muted: #64748b;
-    --danger: #ef4444;
+    --border: #e2e8f0;
+    --input-bg: #ffffff;
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --input-bg: #0f172a;
 }
 
 body {
@@ -14,13 +25,10 @@ body {
     background-color: var(--bg);
     color: var(--text-main);
     padding: 15px;
-    line-height: 1.5;
+    transition: background 0.3s, color 0.3s;
 }
 
-.app-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
+.app-container { max-width: 1200px; margin: 0 auto; }
 
 header {
     display: flex;
@@ -29,13 +37,25 @@ header {
     margin-bottom: 25px;
 }
 
-h1 { font-size: 1.5rem; font-weight: 700; margin: 0; letter-spacing: -0.025em; }
+.brand { display: flex; align-items: center; gap: 15px; }
+
+h1 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+
+#themeToggle {
+    background: var(--border);
+    border: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text-main);
+}
 
 #liveClock {
     font-variant-numeric: tabular-nums;
     font-weight: 500;
     color: var(--primary);
-    background: white;
+    background: var(--card);
     padding: 6px 14px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -47,27 +67,20 @@ h1 { font-size: 1.5rem; font-weight: 700; margin: 0; letter-spacing: -0.025em; }
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    border: 1px solid var(--border);
 }
 
-.main-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-}
+.main-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
 
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
+.controls { display: flex; flex-direction: column; gap: 12px; }
 
 input {
     padding: 10px 14px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text-main);
     border-radius: 8px;
     font-family: inherit;
-    font-size: 0.95rem;
-    outline-color: var(--primary);
     width: 100%;
     box-sizing: border-box;
 }
@@ -80,56 +93,24 @@ button.add-btn {
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
-    width: 100%;
-}
-
-.task-list-header {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .task-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 12px;
-    background: #f8fafc;
+    background: var(--bg);
     border-radius: 8px;
     margin-bottom: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
 }
 
-.task-info strong { display: block; font-size: 0.95rem; }
-.task-info span { font-size: 0.8rem; color: var(--text-muted); }
+/* FullCalendar Dark Overrides */
+.fc { color: var(--text-main); }
+.fc-theme-standard td, .fc-theme-standard th { border: 1px solid var(--border) !important; }
+.fc .fc-list-event:hover td { background-color: var(--border); }
 
-.delete-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-.delete-btn:hover { color: var(--danger); }
-
-/* Responsive Breakpoints */
-@media (min-width: 640px) {
-    .controls { flex-direction: row; }
-    button.add-btn { width: auto; }
-}
-
+@media (min-width: 640px) { .controls { flex-direction: row; } }
 @media (min-width: 1024px) {
-    body { padding: 40px 20px; }
-    .main-layout {
-        grid-template-columns: 1fr 350px;
-        align-items: start;
-    }
+    .main-layout { grid-template-columns: 1fr 350px; align-items: start; }
 }
-
-.fc .fc-button-primary { background-color: var(--primary); border-color: var(--primary); }
-.fc .fc-toolbar-title { font-size: 1.1rem; font-weight: 600; }
