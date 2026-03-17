@@ -1,84 +1,80 @@
 let calendar;
-let myEvents = []; 
+let myEvents = JSON.parse(localStorage.getItem('events')) || []; 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Set default time to now
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('eventTime').value = now.toISOString().slice(0, 16);
+    // 1. Theme Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeButton(currentTheme);
 
+    themeToggle.addEventListener('click', () => {
+        const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeButton(newTheme);
+    });
+
+    // 2. Calendar Logic
     const calendarEl = document.getElementById('calendar');
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,listWeek'
-        },
+        events: myEvents,
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' },
         height: 'auto',
-        eventClick: function(info) {
-            if(confirm("Delete this task?")) {
-                removeTask(info.event.id);
-            }
-        }
+        eventClick: (info) => { if(confirm("Delete task?")) removeTask(info.event.id); }
     });
     calendar.render();
-    
-    // Live Clock
-    setInterval(() => {
-        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
+
+    // 3. Setup UI
+    setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setDefaultTime();
+    refreshTaskList();
 });
+
+function updateThemeButton(theme) {
+    document.getElementById('themeToggle').innerText = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+}
+
+function setDefaultTime() {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('eventTime').value = now.toISOString().slice(0, 16);
+}
 
 function addSchedule() {
     const title = document.getElementById('eventTitle').value;
     const time = document.getElementById('eventTime').value;
-
     if (!title || !time) return;
 
-    const id = Date.now().toString(); 
-    const newEvent = { id: id, title: title, start: time };
-
+    const newEvent = { id: Date.now().toString(), title, start: time };
     myEvents.push(newEvent);
-    calendar.addEvent(newEvent);
-    calendar.gotoDate(time);
-
+    saveAndRefresh(newEvent);
     document.getElementById('eventTitle').value = "";
-    refreshTaskList();
 }
 
 function removeTask(id) {
     myEvents = myEvents.filter(e => e.id !== id);
-    const calendarEvent = calendar.getEventById(id);
-    if (calendarEvent) calendarEvent.remove();
+    calendar.getEventById(id).remove();
+    saveAndRefresh();
+}
+
+function saveAndRefresh(newEvent = null) {
+    if (newEvent) calendar.addEvent(newEvent);
+    localStorage.setItem('events', JSON.stringify(myEvents));
     refreshTaskList();
 }
 
 function refreshTaskList() {
     const list = document.getElementById('taskList');
-    list.innerHTML = "";
-
-    if (myEvents.length === 0) {
-        list.innerHTML = "<p style='color:#94a3b8; font-size:0.9rem;'>No tasks scheduled.</p>";
-        return;
-    }
-
-    myEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
-
-    myEvents.forEach(event => {
-        const date = new Date(event.start).toLocaleString([], {
-            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-        });
-
+    list.innerHTML = myEvents.length === 0 ? "<p style='color:var(--text-muted);'>No tasks.</p>" : "";
+    
+    myEvents.sort((a, b) => new Date(a.start) - new Date(b.start)).forEach(event => {
+        const date = new Date(event.start).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         const div = document.createElement('div');
         div.className = 'task-item';
-        div.innerHTML = `
-            <div class="task-info">
-                <strong>${event.title}</strong>
-                <span>${date}</span>
-            </div>
-            <button class="delete-btn" onclick="removeTask('${event.id}')">&times;</button>
-        `;
+        div.innerHTML = `<div><strong>${event.title}</strong><span>${date}</span></div>
+                         <button class="delete-btn" onclick="removeTask('${event.id}')">&times;</button>`;
         list.appendChild(div);
     });
 }
