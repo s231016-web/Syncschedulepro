@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSchedule Pro</title>
+    
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>SyncSchedule</h1>
+            <div id="liveClock">00:00:00</div>
+        </header>
+
+        <div class="card">
+            <div class="controls">
+                <input type="text" id="eventTitle" placeholder="What needs to be done?">
+                <input type="datetime-local" id="eventTime">
+                <button class="add-btn" onclick="addSchedule()">Add Task</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="card">
+                <div id='calendar'></div>
+            </div>
+
+            <div class="card">
+                <div class="task-list-header">Upcoming events</div>
+                <div id="taskList">
+                    <p style='color:#94a3b8; font-size:0.9rem;'>No tasks scheduled.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
