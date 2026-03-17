@@ -9,8 +9,8 @@
     --input-bg: #ffffff;
 }
 
-/* Dark Mode Variables */
-[data-theme="dark"] {
+/* Updated Dark Mode Selector */
+:root[data-theme="dark"] {
     --bg: #0f172a;
     --card: #1e293b;
     --text-main: #f8fafc;
@@ -25,7 +25,7 @@ body {
     background-color: var(--bg);
     color: var(--text-main);
     padding: 15px;
-    transition: background 0.3s, color 0.3s;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .app-container { max-width: 1200px; margin: 0 auto; }
@@ -35,30 +35,31 @@ header {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .brand { display: flex; align-items: center; gap: 15px; }
 
-h1 { font-size: 1.5rem; font-weight: 700; margin: 0; }
-
 #themeToggle {
-    background: var(--border);
+    background: var(--primary);
+    color: white;
     border: none;
-    padding: 5px 12px;
+    padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.8rem;
-    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 #liveClock {
     font-variant-numeric: tabular-nums;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--primary);
     background: var(--card);
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
 }
 
 .card {
@@ -75,21 +76,21 @@ h1 { font-size: 1.5rem; font-weight: 700; margin: 0; }
 .controls { display: flex; flex-direction: column; gap: 12px; }
 
 input {
-    padding: 10px 14px;
+    padding: 12px;
     border: 1px solid var(--border);
     background: var(--input-bg);
     color: var(--text-main);
     border-radius: 8px;
-    font-family: inherit;
-    width: 100%;
-    box-sizing: border-box;
+    outline: none;
 }
+
+input:focus { border-color: var(--primary); }
 
 button.add-btn {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
@@ -98,19 +99,22 @@ button.add-btn {
 .task-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 12px;
     background: var(--bg);
     border-radius: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     border: 1px solid var(--border);
 }
 
-/* FullCalendar Dark Overrides */
-.fc { color: var(--text-main); }
-.fc-theme-standard td, .fc-theme-standard th { border: 1px solid var(--border) !important; }
-.fc .fc-list-event:hover td { background-color: var(--border); }
+/* Calendar Dark Mode Tweaks */
+.fc { color: var(--text-main); background: var(--card); }
+.fc td, .fc th { border-color: var(--border) !important; }
+.fc .fc-button-primary { background-color: var(--primary); border: none; }
+.fc .fc-list-day-cushion { background: var(--border); }
 
-@media (min-width: 640px) { .controls { flex-direction: row; } }
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
+    .controls { flex-direction: row; }
+    .controls input { flex: 1; }
     .main-layout { grid-template-columns: 1fr 350px; align-items: start; }
 }
