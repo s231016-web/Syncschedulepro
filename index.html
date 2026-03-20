@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SyncSchedule Pro | Smart Planner</title>
+    <!-- FullCalendar Library -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-container">
+        <!-- Main Header -->
         <header class="main-header">
             <div class="brand-group">
-                <div class="logo-icon"></div>
+                <div class="logo-icon">📅</div>
                 <div class="brand-text">
                     <h1>SyncSchedule <span>Pro</span></h1>
                     <p id="dateDisplay">Loading date...</p>
@@ -26,6 +29,7 @@
             </div>
         </header>
 
+        <!-- Quick Entry Panel -->
         <section class="card input-panel glass-effect">
             <div class="controls-grid">
                 <div class="input-group flex-2">
@@ -51,20 +55,24 @@
             </div>
         </section>
 
+        <!-- Main Layout -->
         <main class="content-layout">
+            <!-- Calendar Section -->
             <section class="calendar-section">
-                <div class="card calendar-card" style="padding: 10px;">
+                <div class="card calendar-card" style="padding: 15px;">
                     <div id='calendar'></div>
                 </div>
             </section>
 
+            <!-- Sidebar Section -->
             <aside class="sidebar-section">
+                <!-- Stats Overview -->
                 <div class="card stats-card">
                     <h3 style="margin-top: 0;">Overview</h3>
                     <div class="stats-container">
                         <div class="stat-box">
                             <span class="stat-num" id="taskCount">0</span>
-                            <span class="stat-desc">Total</span>
+                            <span class="stat-desc">Total Tasks</span>
                         </div>
                         <div class="stat-box urgent-border">
                             <span class="stat-num urgent-text" id="urgentCount">0</span>
@@ -73,18 +81,21 @@
                     </div>
                 </div>
 
+                <!-- Task List -->
                 <div class="card list-card">
                     <div class="list-header">
                         <h3 style="margin: 0;">Upcoming</h3>
                         <span class="task-badge" id="listCount">0</span>
                     </div>
                     <div id="taskList" class="scroll-list">
-                        </div>
+                        <!-- Dynamic content -->
+                    </div>
                 </div>
             </aside>
         </main>
     </div>
 
+    <!-- Custom Confirmation Modal -->
     <div id="customModal" class="modal-overlay">
         <div class="modal-window">
             <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
