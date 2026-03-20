@@ -1,76 +1,102 @@
-// 取得 DOM 元素 (使用你原本的 ID)
-const clockElement = document.getElementById('clock');
-const themeToggle = document.getElementById('theme-toggle');
-const taskInput = document.getElementById('task-input');
-const addTaskBtn = document.getElementById('add-task');
-const taskList = document.getElementById('task-list');
+let calendar;
+let myEvents = JSON.parse(localStorage.getItem('events')) || [];
 
-// === 1. 時鐘功能 (修復每秒更新) ===
-function updateClock() {
-    const now = new Date();
-    clockElement.innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// === 2. 深色模式 (修復切換邏輯) ===
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    // 儲存模式設定到本地
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-});
-
-// 載入時檢查模式
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-}
-
-// === 3. 任務管理 (新增儲存與刪除) ===
-function loadTasks() {
-    const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-    savedTasks.forEach(taskText => renderTask(taskText));
-}
-
-function renderTask(text) {
-    const li = document.createElement('li');
-    li.className = 'task-item';
-    li.innerHTML = `
-        <span>${text}</span>
-        <button class="delete-btn">刪除</button>
-    `;
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Dark Mode Logic ---
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
     
-    // 刪除按鈕邏輯
-    li.querySelector('.delete-btn').addEventListener('click', () => {
-        li.remove();
-        saveTasks();
-    });
-    
-    taskList.appendChild(li);
-}
+    // Apply theme immediately on load
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeButton(savedTheme);
 
-function saveTasks() {
-    const tasks = [];
-    document.querySelectorAll('.task-item span').forEach(span => {
-        tasks.push(span.innerText);
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeButton(newTheme);
     });
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-}
 
-// 綁定新增按鈕
-addTaskBtn.addEventListener('click', () => {
-    const text = taskInput.value.trim();
-    if (text) {
-        renderTask(text);
-        saveTasks();
-        taskInput.value = '';
+    function updateThemeButton(theme) {
+        themeToggle.innerText = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
     }
+
+    // --- Calendar Logic ---
+    const calendarEl = document.getElementById('calendar');
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek'
+        },
+        events: myEvents,
+        height: 'auto',
+        eventClick: (info) => {
+            if(confirm("Delete this task?")) removeTask(info.event.id);
+        }
+    });
+    calendar.render();
+
+    // --- Clock & Initial State ---
+    setInterval(() => {
+        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
+    }, 1000);
+
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('eventTime').value = now.toISOString().slice(0, 16);
+    
+    refreshTaskList();
 });
 
-// 支援 Enter 鍵新增
-taskInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') addTaskBtn.click();
-});
+function addSchedule() {
+    const title = document.getElementById('eventTitle').value;
+    const time = document.getElementById('eventTime').value;
+    if (!title || !time) return;
 
-// 初始化載入
-loadTasks();
+    const newEvent = { id: Date.now().toString(), title, start: time };
+    myEvents.push(newEvent);
+    
+    calendar.addEvent(newEvent);
+    localStorage.setItem('events', JSON.stringify(myEvents));
+    
+    document.getElementById('eventTitle').value = "";
+    refreshTaskList();
+}
+
+function removeTask(id) {
+    myEvents = myEvents.filter(e => e.id !== id);
+    localStorage.setItem('events', JSON.stringify(myEvents));
+    calendar.getEventById(id).remove();
+    refreshTaskList();
+}
+
+function refreshTaskList() {
+    const list = document.getElementById('taskList');
+    list.innerHTML = "";
+
+    if (myEvents.length === 0) {
+        list.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No tasks scheduled.</p>`;
+        return;
+    }
+
+    myEvents.sort((a, b) => new Date(a.start) - new Date(b.start)).forEach(event => {
+        const date = new Date(event.start).toLocaleString([], {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.innerHTML = `
+            <div class="task-info">
+                <strong>${event.title}</strong>
+                <span style="font-size: 0.8rem; color: var(--text-muted)">${date}</span>
+            </div>
+            <button class="delete-btn" onclick="removeTask('${event.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.2rem;">&times;</button>
+        `;
+        list.appendChild(div);
+    });
+}
