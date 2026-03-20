@@ -1,87 +1,120 @@
 :root {
-    --primary: #4caf50;
-    --bg: #ffffff;
-    --text: #333333;
-    --item-bg: #f9f9f9;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --input-bg: #ffffff;
 }
 
-/* 深色模式變數 */
-.dark-mode {
-    --bg: #1a1a1a;
-    --text: #ffffff;
-    --item-bg: #2d2d2d;
+/* Updated Dark Mode Selector */
+:root[data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --input-bg: #0f172a;
 }
 
 body {
-    background-color: var(--bg);
-    color: var(--text);
     font-family: 'Inter', sans-serif;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    padding: 50px 20px;
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text-main);
+    padding: 15px;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
-.container {
-    width: 100%;
-    max-width: 400px;
-}
+.app-container { max-width: 1200px; margin: 0 auto; }
 
-#clock {
-    font-size: 3rem;
-    font-weight: bold;
-    margin: 20px 0;
-    color: var(--primary);
-}
-
-/* 輸入區域排版 */
-.input-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-input#task-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background: var(--item-bg);
-    color: var(--text);
-}
-
-button#add-task {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* 任務清單樣式 */
-#task-list {
-    list-style: none;
-    padding: 0;
-}
-
-.task-item {
-    background: var(--item-bg);
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 8px;
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.delete-btn {
-    background: #ff5252;
+.brand { display: flex; align-items: center; gap: 15px; }
+
+#themeToggle {
+    background: var(--primary);
     color: white;
     border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+#liveClock {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--card);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+}
+
+.main-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+.controls { display: flex; flex-direction: column; gap: 12px; }
+
+input {
+    padding: 12px;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text-main);
+    border-radius: 8px;
+    outline: none;
+}
+
+input:focus { border-color: var(--primary); }
+
+button.add-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+}
+
+/* Calendar Dark Mode Tweaks */
+.fc { color: var(--text-main); background: var(--card); }
+.fc td, .fc th { border-color: var(--border) !important; }
+.fc .fc-button-primary { background-color: var(--primary); border: none; }
+.fc .fc-list-day-cushion { background: var(--border); }
+
+@media (min-width: 768px) {
+    .controls { flex-direction: row; }
+    .controls input { flex: 1; }
+    .main-layout { grid-template-columns: 1fr 350px; align-items: start; }
 }
