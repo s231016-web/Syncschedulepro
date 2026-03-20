@@ -1,120 +1,78 @@
 :root {
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --bg: #f1f5f9;
-    --card: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --border: #e2e8f0;
-    --input-bg: #ffffff;
-}
-
-/* Updated Dark Mode Selector */
-:root[data-theme="dark"] {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border: #334155;
-    --input-bg: #0f172a;
+    --bg-light: #f0f2f5;
+    --card-light: rgba(255, 255, 255, 0.8);
+    --text-light: #1c1e21;
+    
+    --bg-dark: #18191a;
+    --card-dark: rgba(36, 37, 38, 0.9);
+    --text-dark: #e4e6eb;
+    
+    --accent: #0084ff;
+    --danger: #fa3e3e;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
     margin: 0;
-    background-color: var(--bg);
-    color: var(--text-main);
-    padding: 15px;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-.app-container { max-width: 1200px; margin: 0 auto; }
-
-header {
+    transition: background 0.3s ease;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
+    min-height: 100vh;
 }
 
-.brand { display: flex; align-items: center; gap: 15px; }
-
-#themeToggle {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
+/* 亮色模式 */
+body.light-mode {
+    background: var(--bg-light);
+    color: var(--text-light);
 }
 
-#liveClock {
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-    color: var(--primary);
-    background: var(--card);
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+/* 深色模式 */
+body.dark-mode {
+    background: var(--bg-dark);
+    color: var(--text-dark);
 }
 
-.card {
-    background: var(--card);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
+.container {
+    backdrop-filter: blur(10px);
+    background: var(--card-light);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 450px;
 }
 
-.main-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
-
-.controls { display: flex; flex-direction: column; gap: 12px; }
-
-input {
-    padding: 12px;
-    border: 1px solid var(--border);
-    background: var(--input-bg);
-    color: var(--text-main);
-    border-radius: 8px;
-    outline: none;
+body.dark-mode .container {
+    background: var(--card-dark);
 }
 
-input:focus { border-color: var(--primary); }
-
-button.add-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+/* 時鐘美化 */
+#clock {
+    font-size: 3rem;
+    text-align: center;
+    margin: 1rem 0;
+    font-weight: 700;
+    color: var(--accent);
 }
 
+/* 任務列表 */
 .task-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background: var(--bg);
+    margin-top: 10px;
+    background: rgba(0,0,0,0.05);
     border-radius: 8px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border);
+    animation: fadeIn 0.4s ease;
 }
 
-/* Calendar Dark Mode Tweaks */
-.fc { color: var(--text-main); background: var(--card); }
-.fc td, .fc th { border-color: var(--border) !important; }
-.fc .fc-button-primary { background-color: var(--primary); border: none; }
-.fc .fc-list-day-cushion { background: var(--border); }
+.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
 
-@media (min-width: 768px) {
-    .controls { flex-direction: row; }
-    .controls input { flex: 1; }
-    .main-layout { grid-template-columns: 1fr 350px; align-items: start; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
