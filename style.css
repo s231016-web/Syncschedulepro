@@ -1,78 +1,87 @@
 :root {
-    --bg-light: #f0f2f5;
-    --card-light: rgba(255, 255, 255, 0.8);
-    --text-light: #1c1e21;
-    
-    --bg-dark: #18191a;
-    --card-dark: rgba(36, 37, 38, 0.9);
-    --text-dark: #e4e6eb;
-    
-    --accent: #0084ff;
-    --danger: #fa3e3e;
+    --primary: #4caf50;
+    --bg: #ffffff;
+    --text: #333333;
+    --item-bg: #f9f9f9;
+}
+
+/* 深色模式變數 */
+.dark-mode {
+    --bg: #1a1a1a;
+    --text: #ffffff;
+    --item-bg: #2d2d2d;
 }
 
 body {
-    margin: 0;
-    transition: background 0.3s ease;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-/* 亮色模式 */
-body.light-mode {
-    background: var(--bg-light);
-    color: var(--text-light);
-}
-
-/* 深色模式 */
-body.dark-mode {
-    background: var(--bg-dark);
-    color: var(--text-dark);
+    padding: 50px 20px;
 }
 
 .container {
-    backdrop-filter: blur(10px);
-    background: var(--card-light);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    width: 90%;
-    max-width: 450px;
+    width: 100%;
+    max-width: 400px;
 }
 
-body.dark-mode .container {
-    background: var(--card-dark);
-}
-
-/* 時鐘美化 */
 #clock {
     font-size: 3rem;
-    text-align: center;
-    margin: 1rem 0;
-    font-weight: 700;
-    color: var(--accent);
+    font-weight: bold;
+    margin: 20px 0;
+    color: var(--primary);
 }
 
-/* 任務列表 */
+/* 輸入區域排版 */
+.input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+input#task-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: var(--item-bg);
+    color: var(--text);
+}
+
+button#add-task {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 任務清單樣式 */
+#task-list {
+    list-style: none;
+    padding: 0;
+}
+
 .task-item {
+    background: var(--item-bg);
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    margin-top: 10px;
-    background: rgba(0,0,0,0.05);
-    border-radius: 8px;
-    animation: fadeIn 0.4s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.completed {
-    text-decoration: line-through;
-    opacity: 0.6;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.delete-btn {
+    background: #ff5252;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
 }
