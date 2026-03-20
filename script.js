@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initTheme();
     initCalendar();
     initModal();
-    saveAndRefresh(); // Ensure overview updates on initial load
+    saveAndRefresh();
 
-    // Start notification checker (every 30 seconds)
-    setInterval(checkNotifications, 30000);
+    // Start notification checker (More frequent: every 10 seconds)
+    setInterval(checkNotifications, 10000);
 
     // Set default input time to now
     const now = new Date();
@@ -20,31 +20,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Helper to request notification permission via user gesture
 function requestNotificationPermission() {
-    if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
+    if (!("Notification" in window)) return;
+    
+    if (Notification.permission === "default") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                console.log("Notification permission granted.");
+                // Send a test notification immediately
+                new Notification("SyncSchedule Pro", { body: "Notifications are now enabled!" });
+            }
+        });
     }
 }
 
-// Notification Logic
+// Improved Notification Logic
 function checkNotifications() {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
 
-    const now = new Date();
+    const now = new Date().getTime();
+    let hasUpdates = false;
+
     myEvents.forEach(event => {
-        const eventDate = new Date(event.start);
-        // Calculate difference in minutes
-        const diff = (eventDate - now) / 1000 / 60;
+        const eventTime = new Date(event.start).getTime();
         
-        // Notify if task is due within the next minute and hasn't been notified yet
-        if (diff > 0 && diff <= 1 && !event.notified) {
-            new Notification("Task Reminder", {
-                body: `Time for: ${event.title}`,
-                icon: "https://cdn-icons-png.flaticon.com/512/3114/3114812.png" // Placeholder icon
-            });
-            event.notified = true; // Mark as notified
-            localStorage.setItem('events', JSON.stringify(myEvents));
+        // Trigger if: 
+        // 1. Current time has passed or reached event time
+        // 2. Event was scheduled within the last 30 minutes (prevent old spam)
+        // 3. Not already notified
+        if (now >= eventTime && (now - eventTime) < 30 * 60 * 1000 && !event.notified) {
+            try {
+                const n = new Notification("Task Reminder", {
+                    body: `It's time for: ${event.title}`,
+                    icon: "https://cdn-icons-png.flaticon.com/512/3114/3114812.png",
+                    tag: event.id, // Prevent duplicate notifications for same ID
+                    requireInteraction: true // Keeps notification visible until user clicks
+                });
+                
+                n.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+
+                event.notified = true;
+                hasUpdates = true;
+                console.log(`Notification sent for: ${event.title}`);
+            } catch (e) {
+                console.error("Failed to send notification:", e);
+            }
         }
     });
+
+    if (hasUpdates) {
+        localStorage.setItem('events', JSON.stringify(myEvents));
+    }
 }
 
 // Theme Toggle
@@ -55,9 +83,7 @@ function initTheme() {
     themeToggle.innerText = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
     themeToggle.addEventListener('click', () => {
-        // Request permission on first interaction
         requestNotificationPermission();
-
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
@@ -80,12 +106,12 @@ function initCalendar() {
         events: myEvents,
         height: 'auto',
         editable: true,
-        // Using the custom modal for calendar event clicks
         eventClick: (info) => showDeleteModal(info.event.id),
         eventDrop: (info) => {
             const idx = myEvents.findIndex(e => e.id === info.event.id);
             if(idx !== -1) {
                 myEvents[idx].start = info.event.start.toISOString();
+                myEvents[idx].notified = false; // Reset notification if moved to future
                 saveAndRefresh();
             }
         }
@@ -95,7 +121,6 @@ function initCalendar() {
 
 // Task CRUD
 function addSchedule() {
-    // Request permission on first interaction
     requestNotificationPermission();
 
     const titleInput = document.getElementById('eventTitle');
@@ -112,13 +137,15 @@ function addSchedule() {
         backgroundColor: color,
         borderColor: color,
         textColor: '#ffffff',
-        notified: false // New flag for notifications
+        notified: false
     };
 
     myEvents.push(newEvent);
     calendar.addEvent(newEvent);
-    saveAndRefresh(); // Automatically updates overview and storage
+    saveAndRefresh();
     titleInput.value = "";
+    
+    console.log(`Task "${title}" added for ${new Date(newEvent.start).toLocaleString()}`);
 }
 
 function showDeleteModal(id) {
@@ -135,12 +162,9 @@ function initModal() {
     
     document.getElementById('confirmBtn').onclick = () => {
         if (deleteId) {
-            // Remove from array
             myEvents = myEvents.filter(e => e.id !== deleteId);
-            // Remove from FullCalendar UI
             const ev = calendar.getEventById(deleteId);
             if(ev) ev.remove();
-            
             saveAndRefresh();
             modal.style.display = 'none';
             deleteId = null;
@@ -148,7 +172,6 @@ function initModal() {
     };
 }
 
-// State Management
 function saveAndRefresh() {
     localStorage.setItem('events', JSON.stringify(myEvents));
     updateOverview();
@@ -164,7 +187,6 @@ function updateOverview() {
     
     taskCount.innerText = myEvents.length;
     urgentCount.innerText = urgentTasks;
-    // Added spacing for the badge count
     listCountBadge.innerHTML = `&nbsp;${myEvents.length}&nbsp;`;
 }
 
@@ -177,7 +199,6 @@ function renderUpcomingList() {
         return;
     }
 
-    // Sort by date and render
     [...myEvents].sort((a,b) => new Date(a.start) - new Date(b.start)).forEach(event => {
         const dateStr = new Date(event.start).toLocaleString('en-US', {
             month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -200,15 +221,14 @@ function renderUpcomingList() {
     });
 }
 
-// Clock UI
 function initClock() {
     setInterval(() => {
-        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('en-US');
+        const now = new Date();
+        document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-US');
     }, 1000);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', options);
     
-    // UI adjustment: Add right margin to clock display to separate from dark mode button
     const liveClock = document.getElementById('liveClock');
     if (liveClock) liveClock.style.marginRight = '15px';
 }
