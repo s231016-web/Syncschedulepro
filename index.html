@@ -3,38 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SyncSchedule Pro</title>
+    <title>SyncSchedule Pro | Smart Planner</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-container">
-        <header>
-            <div class="brand">
-                <h1>SyncSchedule</h1>
-                <button id="themeToggle">🌙 Dark Mode</button>
+        <header class="main-header">
+            <div class="brand-group">
+                <div class="logo-icon"></div>
+                <div class="brand-text">
+                    <h1>SyncSchedule <span>Pro</span></h1>
+                    <p id="dateDisplay">Loading date...</p>
+                </div>
             </div>
-            <div id="liveClock">00:00:00</div>
+            
+            <div class="header-status">
+                <div id="liveClock" class="clock-display">00:00:00</div>
+                <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
+            </div>
         </header>
 
-        <div class="card">
-            <div class="controls">
-                <input type="text" id="eventTitle" placeholder="What needs to be done?">
-                <input type="datetime-local" id="eventTime">
-                <button class="add-btn" onclick="addSchedule()">Add Task</button>
+        <section class="card input-panel glass-effect">
+            <div class="controls-grid">
+                <div class="input-group flex-2">
+                    <label for="eventTitle">Task Name</label>
+                    <input type="text" id="eventTitle" placeholder="What's the plan?" autocomplete="off">
+                </div>
+                <div class="input-group flex-1">
+                    <label for="eventCategory">Category</label>
+                    <select id="eventCategory">
+                        <option value="#4f46e5">🔵 Work</option>
+                        <option value="#10b981">🟢 Personal</option>
+                        <option value="#f59e0b">🟡 Important</option>
+                        <option value="#ef4444">🔴 Urgent</option>
+                    </select>
+                </div>
+                <div class="input-group flex-1">
+                    <label for="eventTime">Schedule Time</label>
+                    <input type="datetime-local" id="eventTime">
+                </div>
+                <div class="button-wrapper">
+                    <button class="add-btn" onclick="addSchedule()">Add Task</button>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="main-layout">
-            <div class="card">
-                <div id='calendar'></div>
-            </div>
+        <main class="content-layout">
+            <section class="calendar-section">
+                <div class="card calendar-card" style="padding: 10px;">
+                    <div id='calendar'></div>
+                </div>
+            </section>
 
-            <div class="card">
-                <div class="task-list-header">Upcoming events</div>
-                <div id="taskList"></div>
+            <aside class="sidebar-section">
+                <div class="card stats-card">
+                    <h3 style="margin-top: 0;">Overview</h3>
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <span class="stat-num" id="taskCount">0</span>
+                            <span class="stat-desc">Total</span>
+                        </div>
+                        <div class="stat-box urgent-border">
+                            <span class="stat-num urgent-text" id="urgentCount">0</span>
+                            <span class="stat-desc">Urgent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card list-card">
+                    <div class="list-header">
+                        <h3 style="margin: 0;">Upcoming</h3>
+                        <span class="task-badge" id="listCount">0</span>
+                    </div>
+                    <div id="taskList" class="scroll-list">
+                        </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-window">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+            <h3>Delete Task?</h3>
+            <p style="color: var(--text-muted);">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="cancelBtn" class="btn-secondary">Cancel</button>
+                <button id="confirmBtn" class="btn-danger">Confirm</button>
             </div>
         </div>
     </div>
