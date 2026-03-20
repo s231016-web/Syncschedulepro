@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initModal();
     saveAndRefresh();
 
-    // Start notification checker (More frequent: every 10 seconds)
-    setInterval(checkNotifications, 10000);
+    // Start notification checker (High frequency: every 1 second for zero delay)
+    setInterval(checkNotifications, 1000);
 
     // Set default input time to now
     const now = new Date();
@@ -26,14 +26,13 @@ function requestNotificationPermission() {
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
                 console.log("Notification permission granted.");
-                // Send a test notification immediately
                 new Notification("SyncSchedule Pro", { body: "Notifications are now enabled!" });
             }
         });
     }
 }
 
-// Improved Notification Logic
+// Improved Notification Logic - Real-time Precision
 function checkNotifications() {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
 
@@ -43,35 +42,36 @@ function checkNotifications() {
     myEvents.forEach(event => {
         const eventTime = new Date(event.start).getTime();
         
-        // Trigger if: 
-        // 1. Current time has passed or reached event time
-        // 2. Event was scheduled within the last 30 minutes (prevent old spam)
-        // 3. Not already notified
-        if (now >= eventTime && (now - eventTime) < 30 * 60 * 1000 && !event.notified) {
-            try {
-                const n = new Notification("Task Reminder", {
-                    body: `It's time for: ${event.title}`,
-                    icon: "https://cdn-icons-png.flaticon.com/512/3114/3114812.png",
-                    tag: event.id, // Prevent duplicate notifications for same ID
-                    requireInteraction: true // Keeps notification visible until user clicks
-                });
-                
-                n.onclick = function() {
-                    window.focus();
-                    this.close();
-                };
-
-                event.notified = true;
-                hasUpdates = true;
-                console.log(`Notification sent for: ${event.title}`);
-            } catch (e) {
-                console.error("Failed to send notification:", e);
-            }
+        // Trigger immediately when now is greater or equal to event time
+        // We check a 5-minute window for safety to avoid triggering very old tasks
+        if (now >= eventTime && (now - eventTime) < 5 * 60 * 1000 && !event.notified) {
+            sendNotification(event);
+            event.notified = true;
+            hasUpdates = true;
         }
     });
 
     if (hasUpdates) {
         localStorage.setItem('events', JSON.stringify(myEvents));
+    }
+}
+
+function sendNotification(event) {
+    try {
+        const n = new Notification("Task Reminder", {
+            body: `It's time for: ${event.title}`,
+            icon: "https://cdn-icons-png.flaticon.com/512/3114/3114812.png",
+            tag: event.id,
+            requireInteraction: true
+        });
+        
+        n.onclick = function() {
+            window.focus();
+            this.close();
+        };
+        console.log(`Notification sent exactly at: ${new Date().toLocaleTimeString()}`);
+    } catch (e) {
+        console.error("Failed to send notification:", e);
     }
 }
 
@@ -145,7 +145,8 @@ function addSchedule() {
     saveAndRefresh();
     titleInput.value = "";
     
-    console.log(`Task "${title}" added for ${new Date(newEvent.start).toLocaleString()}`);
+    // Debug log to confirm scheduled time
+    console.log(`Task "${title}" scheduled for: ${new Date(newEvent.start).toLocaleString()}`);
 }
 
 function showDeleteModal(id) {
