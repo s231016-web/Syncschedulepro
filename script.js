@@ -8,11 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initCalendar();
     initModal();
     saveAndRefresh(); // Ensure overview updates on initial load
-    
-    // Request notification permission
-    if ("Notification" in window) {
-        Notification.requestPermission();
-    }
 
     // Start notification checker (every 30 seconds)
     setInterval(checkNotifications, 30000);
@@ -22,6 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('eventTime').value = now.toISOString().slice(0, 16);
 });
+
+// Helper to request notification permission via user gesture
+function requestNotificationPermission() {
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+}
 
 // Notification Logic
 function checkNotifications() {
@@ -53,6 +55,9 @@ function initTheme() {
     themeToggle.innerText = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
 
     themeToggle.addEventListener('click', () => {
+        // Request permission on first interaction
+        requestNotificationPermission();
+
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
@@ -90,6 +95,9 @@ function initCalendar() {
 
 // Task CRUD
 function addSchedule() {
+    // Request permission on first interaction
+    requestNotificationPermission();
+
     const titleInput = document.getElementById('eventTitle');
     const title = titleInput.value;
     const time = document.getElementById('eventTime').value;
@@ -201,5 +209,6 @@ function initClock() {
     document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', options);
     
     // UI adjustment: Add right margin to clock display to separate from dark mode button
-    document.getElementById('liveClock').style.marginRight = '15px';
+    const liveClock = document.getElementById('liveClock');
+    if (liveClock) liveClock.style.marginRight = '15px';
 }
