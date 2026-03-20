@@ -7,15 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     initTheme();
     initCalendar();
     initModal();
-    refreshTaskList();
+    saveAndRefresh(); // Ensure overview updates on initial load
     
-    // Set default time to now
+    // Set default input time to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('eventTime').value = now.toISOString().slice(0, 16);
 });
 
-// Theme Logic
+// Theme Toggle
 function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -31,12 +31,12 @@ function initTheme() {
     });
 }
 
-// Calendar Logic
+// Calendar Setup
 function initCalendar() {
     const calendarEl = document.getElementById('calendar');
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        locale: 'en', // Changed to English
+        locale: 'en',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -45,6 +45,7 @@ function initCalendar() {
         events: myEvents,
         height: 'auto',
         editable: true,
+        // Using the custom modal for calendar event clicks
         eventClick: (info) => showDeleteModal(info.event.id),
         eventDrop: (info) => {
             const idx = myEvents.findIndex(e => e.id === info.event.id);
@@ -57,9 +58,10 @@ function initCalendar() {
     calendar.render();
 }
 
-// Task Operations
+// Task CRUD
 function addSchedule() {
-    const title = document.getElementById('eventTitle').value;
+    const titleInput = document.getElementById('eventTitle');
+    const title = titleInput.value;
     const time = document.getElementById('eventTime').value;
     const color = document.getElementById('eventCategory').value;
 
@@ -76,8 +78,8 @@ function addSchedule() {
 
     myEvents.push(newEvent);
     calendar.addEvent(newEvent);
-    saveAndRefresh();
-    document.getElementById('eventTitle').value = "";
+    saveAndRefresh(); // Automatically updates overview and storage
+    titleInput.value = "";
 }
 
 function showDeleteModal(id) {
@@ -86,59 +88,79 @@ function showDeleteModal(id) {
 }
 
 function initModal() {
+    const modal = document.getElementById('customModal');
     document.getElementById('cancelBtn').onclick = () => {
-        document.getElementById('customModal').style.display = 'none';
+        modal.style.display = 'none';
+        deleteId = null;
     };
+    
     document.getElementById('confirmBtn').onclick = () => {
-        myEvents = myEvents.filter(e => e.id !== deleteId);
-        const ev = calendar.getEventById(deleteId);
-        if(ev) ev.remove();
-        saveAndRefresh();
-        document.getElementById('customModal').style.display = 'none';
+        if (deleteId) {
+            // Remove from array
+            myEvents = myEvents.filter(e => e.id !== deleteId);
+            // Remove from FullCalendar UI
+            const ev = calendar.getEventById(deleteId);
+            if(ev) ev.remove();
+            
+            saveAndRefresh();
+            modal.style.display = 'none';
+            deleteId = null;
+        }
     };
 }
 
+// State Management
 function saveAndRefresh() {
     localStorage.setItem('events', JSON.stringify(myEvents));
-    refreshTaskList();
+    updateOverview();
+    renderUpcomingList();
 }
 
-function refreshTaskList() {
-    const list = document.getElementById('taskList');
+function updateOverview() {
     const taskCount = document.getElementById('taskCount');
     const urgentCount = document.getElementById('urgentCount');
-    const listCount = document.getElementById('listCount');
+    const listCountBadge = document.getElementById('listCount');
     
-    list.innerHTML = "";
+    const urgentTasks = myEvents.filter(e => e.backgroundColor === '#ef4444').length;
+    
     taskCount.innerText = myEvents.length;
-    urgentCount.innerText = myEvents.filter(e => e.backgroundColor === '#ef4444').length;
-    listCount.innerText = myEvents.length;
+    urgentCount.innerText = urgentTasks;
+    listCountBadge.innerText = myEvents.length;
+}
+
+function renderUpcomingList() {
+    const list = document.getElementById('taskList');
+    list.innerHTML = "";
 
     if (myEvents.length === 0) {
-        list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">No tasks found</div>`;
+        list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">No upcoming tasks</div>`;
         return;
     }
 
+    // Sort by date and render
     [...myEvents].sort((a,b) => new Date(a.start) - new Date(b.start)).forEach(event => {
-        const date = new Date(event.start).toLocaleString('en-US', {
+        const dateStr = new Date(event.start).toLocaleString('en-US', {
             month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
+        
         const div = document.createElement('div');
         div.className = 'task-item';
         div.style.borderLeftColor = event.backgroundColor;
         div.onclick = () => calendar.gotoDate(new Date(event.start));
+        
         div.innerHTML = `
             <div style="flex:1">
                 <strong style="display:block">${event.title}</strong>
-                <small style="color:var(--text-muted)">${date}</small>
+                <small style="color:var(--text-muted)">${dateStr}</small>
             </div>
             <button onclick="event.stopPropagation(); showDeleteModal('${event.id}')" 
-                    style="background:none; border:none; color:#ef4444; font-size:1.5rem; cursor:pointer;">&times;</button>
+                    style="background:none; border:none; color:#ef4444; font-size:1.5rem; cursor:pointer; padding: 0 10px;">&times;</button>
         `;
         list.appendChild(div);
     });
 }
 
+// Clock UI
 function initClock() {
     setInterval(() => {
         document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('en-US');
