@@ -9,11 +9,41 @@ document.addEventListener('DOMContentLoaded', function() {
     initModal();
     saveAndRefresh(); // Ensure overview updates on initial load
     
+    // Request notification permission
+    if ("Notification" in window) {
+        Notification.requestPermission();
+    }
+
+    // Start notification checker (every 30 seconds)
+    setInterval(checkNotifications, 30000);
+
     // Set default input time to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('eventTime').value = now.toISOString().slice(0, 16);
 });
+
+// Notification Logic
+function checkNotifications() {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    const now = new Date();
+    myEvents.forEach(event => {
+        const eventDate = new Date(event.start);
+        // Calculate difference in minutes
+        const diff = (eventDate - now) / 1000 / 60;
+        
+        // Notify if task is due within the next minute and hasn't been notified yet
+        if (diff > 0 && diff <= 1 && !event.notified) {
+            new Notification("Task Reminder", {
+                body: `Time for: ${event.title}`,
+                icon: "https://cdn-icons-png.flaticon.com/512/3114/3114812.png" // Placeholder icon
+            });
+            event.notified = true; // Mark as notified
+            localStorage.setItem('events', JSON.stringify(myEvents));
+        }
+    });
+}
 
 // Theme Toggle
 function initTheme() {
@@ -73,7 +103,8 @@ function addSchedule() {
         start: time || new Date().toISOString(),
         backgroundColor: color,
         borderColor: color,
-        textColor: '#ffffff'
+        textColor: '#ffffff',
+        notified: false // New flag for notifications
     };
 
     myEvents.push(newEvent);
@@ -125,7 +156,8 @@ function updateOverview() {
     
     taskCount.innerText = myEvents.length;
     urgentCount.innerText = urgentTasks;
-    listCountBadge.innerText = myEvents.length;
+    // Added spacing for the badge count
+    listCountBadge.innerHTML = `&nbsp;${myEvents.length}&nbsp;`;
 }
 
 function renderUpcomingList() {
@@ -167,4 +199,7 @@ function initClock() {
     }, 1000);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', options);
+    
+    // UI adjustment: Add right margin to clock display to separate from dark mode button
+    document.getElementById('liveClock').style.marginRight = '15px';
 }
