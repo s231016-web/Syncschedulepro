@@ -148,3 +148,38 @@ input:focus { border-color: var(--primary); }
 .fc-theme-standard td, .fc-theme-standard th { border: 1px solid var(--border) !important; }
 .fc .fc-button-primary { background-color: var(--primary) !important; border: none !important; }
 .fc .fc-button-primary:hover { background-color: var(--primary-hover) !important; }
+
+/* Logo Styling */
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 10px; /* Optional: smooths the corners of the square image */
+}
+
+/* Notification Badge */
+.notif-badge {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    margin-right: 10px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.notif-badge.active {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+/* Adjusting header for new elements */
+.header-status {
+    display: flex;
+    align-items: center;
+}
