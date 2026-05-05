@@ -19,20 +19,33 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Helper to request notification permission via user gesture
+// Replace your existing requestNotificationPermission function
 function requestNotificationPermission() {
-    if (!("Notification" in window)) return;
-    
-    if (Notification.permission === "default") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                console.log("Notification permission granted.");
-                new Notification("SyncSchedule Pro", { body: "Notifications are now enabled!" });
-            }
-        });
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notifications.");
+        return;
     }
+
+    // Check if we are in a secure context (localhost or https)
+    if (!window.isSecureContext) {
+        alert("Notifications require a secure context. Please run this via a local server (like VS Code Live Server) instead of opening the file directly.");
+        return;
+    }
+
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            new Notification("SyncSchedule Pro", { 
+                body: "Notifications are now active!",
+                icon: "SYNC.png" 
+            });
+            updateNotifBadge(); // Update UI if you added the badge from the previous step
+        } else if (permission === "denied") {
+            alert("Notifications are blocked. Please click the lock icon in your browser address bar to allow them.");
+        }
+    });
 }
 
-// Improved Notification Logic - Real-time Precision
+// Updated checkNotifications to use your SYNC.png icon
 function checkNotifications() {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
 
@@ -41,11 +54,13 @@ function checkNotifications() {
 
     myEvents.forEach(event => {
         const eventTime = new Date(event.start).getTime();
-        
-        // Trigger immediately when now is greater or equal to event time
-        // We check a 5-minute window for safety to avoid triggering very old tasks
-        if (now >= eventTime && (now - eventTime) < 5 * 60 * 1000 && !event.notified) {
-            sendNotification(event);
+        // Trigger if current time is within 1 second of event time
+        if (!event.notified && Math.abs(now - eventTime) < 1000) {
+            new Notification("SyncSchedule Task", {
+                body: `Starting now: ${event.title}`,
+                icon: "SYNC.png",
+                requireInteraction: true // Keeps notification visible until clicked
+            });
             event.notified = true;
             hasUpdates = true;
         }
