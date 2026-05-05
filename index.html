@@ -16,17 +16,18 @@
         <!-- Main Header -->
         <header class="main-header">
             <div class="brand-group">
-                <div class="logo-icon">📅</div>
-                <div class="brand-text">
-                    <h1>SyncSchedule <span>Pro</span></h1>
-                    <p id="dateDisplay">Loading date...</p>
-                </div>
-            </div>
-            
-            <div class="header-status">
-                <div id="liveClock" class="clock-display">00:00:00</div>
-                <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
-            </div>
+    <img src="SYNC.png" alt="SyncSchedule Logo" class="brand-logo">
+    <div class="brand-text">
+        <h1>SyncSchedule <span>Pro</span></h1>
+        <p id="dateDisplay">Loading date...</p>
+    </div>
+</div>
+
+<div class="header-status">
+    <div id="notifStatus" class="notif-badge" onclick="requestNotificationPermission()">🔔 Enable Alerts</div>
+    <div id="liveClock" class="clock-display">00:00:00</div>
+    <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
+</div>
         </header>
 
         <!-- Quick Entry Panel -->
