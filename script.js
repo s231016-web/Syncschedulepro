@@ -233,3 +233,68 @@ function initClock() {
     const liveClock = document.getElementById('liveClock');
     if (liveClock) liveClock.style.marginRight = '15px';
 }
+// Add to your existing script.js
+
+// 1. Updated Permission Request with UI feedback
+function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notifications.");
+        return;
+    }
+    
+    Notification.requestPermission().then(permission => {
+        updateNotifBadge();
+        if (permission === "granted") {
+            new Notification("SyncSchedule Pro", { 
+                body: "Notifications are now active!",
+                icon: "SYNC.png" 
+            });
+        }
+    });
+}
+
+// 2. Update the UI badge state
+function updateNotifBadge() {
+    const badge = document.getElementById('notifStatus');
+    if (!badge) return;
+
+    if (Notification.permission === "granted") {
+        badge.innerHTML = "✅ Alerts On";
+        badge.classList.add('active');
+    } else if (Notification.permission === "denied") {
+        badge.innerHTML = "🚫 Alerts Blocked";
+        badge.style.opacity = "0.5";
+    }
+}
+
+// 3. Enhance Send Notification to use your new logo as the icon
+function sendNotification(event) {
+    try {
+        const n = new Notification("Task Reminder", {
+            body: `Time for: ${event.title}`,
+            icon: "SYNC.png", // Using your custom logo
+            tag: event.id,
+            requireInteraction: true
+        });
+        
+        // Add a simple beep sound (Optional)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        oscillator.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1);
+
+        n.onclick = function() {
+            window.focus();
+            this.close();
+        };
+    } catch (e) {
+        console.error("Notification failed:", e);
+    }
+}
+
+// 4. Update DOMContentLoaded to refresh the badge
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing init functions ...
+    updateNotifBadge();
+});
