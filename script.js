@@ -251,65 +251,81 @@ function initClock() {
 // Add to your existing script.js
 
 // 1. Updated Permission Request with UI feedback
+// 1. Updated Permission Function with Debug Alerts
 function requestNotificationPermission() {
     if (!("Notification" in window)) {
-        alert("This browser does not support desktop notifications.");
+        alert("This browser does not support notifications.");
         return;
     }
-    
+
+    // Check if site is served via file:// (Notifications will NOT work)
+    if (window.location.protocol === 'file:') {
+        alert("CRITICAL: Notifications only work when running on a server (e.g., VS Code Live Server). They do not work if you double-click the .html file from your folder.");
+        return;
+    }
+
     Notification.requestPermission().then(permission => {
-        updateNotifBadge();
+        updateNotifUI();
         if (permission === "granted") {
             new Notification("SyncSchedule Pro", { 
-                body: "Notifications are now active!",
+                body: "Success! Notifications are enabled.",
                 icon: "SYNC.png" 
             });
+        } else if (permission === "denied") {
+            alert("Permission Denied. Please click the 'Lock' icon next to the URL in your browser address bar and set Notifications to 'Allow'.");
         }
     });
 }
 
-// 2. Update the UI badge state
-function updateNotifBadge() {
-    const badge = document.getElementById('notifStatus');
+// 2. UI Update for the Badge
+function updateNotifUI() {
+    const badge = document.getElementById('notifBadge');
     if (!badge) return;
-
+    
     if (Notification.permission === "granted") {
-        badge.innerHTML = "✅ Alerts On";
-        badge.classList.add('active');
+        badge.innerHTML = "✅ Alerts Active";
+        badge.style.background = "#10b981";
     } else if (Notification.permission === "denied") {
         badge.innerHTML = "🚫 Alerts Blocked";
-        badge.style.opacity = "0.5";
+        badge.style.background = "#ef4444";
     }
 }
 
-// 3. Enhance Send Notification to use your new logo as the icon
-function sendNotification(event) {
-    try {
-        const n = new Notification("Task Reminder", {
-            body: `Time for: ${event.title}`,
-            icon: "SYNC.png", // Using your custom logo
-            tag: event.id,
-            requireInteraction: true
-        });
+// 3. Updated checkNotifications to use SYNC.png
+function checkNotifications() {
+    if (Notification.permission !== "granted") return;
+
+    const now = new Date().getTime();
+    let hasUpdates = false;
+
+    myEvents.forEach(event => {
+        const eventTime = new Date(event.start).getTime();
         
-        // Add a simple beep sound (Optional)
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        oscillator.connect(audioCtx.destination);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.1);
+        // Exact match check (within 2 seconds of the scheduled time)
+        if (Math.abs(now - eventTime) < 2000 && !event.notified) {
+            new Notification("Task Reminder", {
+                body: `Time for: ${event.title}`,
+                icon: "SYNC.png", // Using your uploaded image
+                requireInteraction: true
+            });
+            event.notified = true;
+            hasUpdates = true;
+        }
+    });
 
-        n.onclick = function() {
-            window.focus();
-            this.close();
-        };
-    } catch (e) {
-        console.error("Notification failed:", e);
+    if (hasUpdates) {
+        localStorage.setItem('events', JSON.stringify(myEvents));
     }
 }
 
-// 4. Update DOMContentLoaded to refresh the badge
+// 4. Update the DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', function() {
-    // ... your existing init functions ...
-    updateNotifBadge();
+    initClock();
+    initTheme();
+    initCalendar();
+    initModal();
+    saveAndRefresh();
+    updateNotifUI(); // Check status on load
+
+    setInterval(checkNotifications, 1000);
 });
