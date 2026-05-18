@@ -4,38 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SyncSchedule Pro | Smart Planner</title>
-    <!-- FullCalendar Library -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <button onclick="requestNotificationPermission()" class="theme-btn" style="margin-right: 10px; background: #4f46e5; color: white;">
-    🔔 Test Notifications
-</button>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- Main Header -->
         <header class="main-header">
             <div class="brand-group">
-    <img src="SYNC.png" alt="Logo" style="width: 45px; height: 45px; border-radius: 8px;">
-    <div class="brand-text">
-        <h1>SyncSchedule <span>Pro</span></h1>
-        <p id="dateDisplay">Loading date...</p>
-    </div>
-</div>
-
-<div class="header-status">
-    <button id="notifBadge" class="theme-btn" onclick="requestNotificationPermission()" style="background: #6366f1; margin-right: 10px;">
-        🔔 Enable Notifications
-    </button>
-    <div id="liveClock" class="clock-display">00:00:00</div>
-    <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
-</div>
+                <img src="SYNC.png" alt="Logo" class="brand-logo-img">
+                <div class="brand-text">
+                    <h1>SyncSchedule <span>Pro</span></h1>
+                    <p id="dateDisplay">Loading date...</p>
+                </div>
+            </div>
+            
+            <div class="header-status">
+                <button id="notifBtn" class="notif-badge-btn" onclick="requestNotificationPermission()">
+                    🔔 Enable Alerts
+                </button>
+                <div id="liveClock" class="clock-display">00:00:00</div>
+                <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
+            </div>
         </header>
 
-        <!-- Quick Entry Panel -->
         <section class="card input-panel glass-effect">
             <div class="controls-grid">
                 <div class="input-group flex-2">
@@ -61,18 +54,14 @@
             </div>
         </section>
 
-        <!-- Main Layout -->
         <main class="content-layout">
-            <!-- Calendar Section -->
             <section class="calendar-section">
                 <div class="card calendar-card" style="padding: 15px;">
                     <div id='calendar'></div>
                 </div>
             </section>
 
-            <!-- Sidebar Section -->
             <aside class="sidebar-section">
-                <!-- Stats Overview -->
                 <div class="card stats-card">
                     <h3 style="margin-top: 0;">Overview</h3>
                     <div class="stats-container">
@@ -87,21 +76,17 @@
                     </div>
                 </div>
 
-                <!-- Task List -->
                 <div class="card list-card">
                     <div class="list-header">
                         <h3 style="margin: 0;">Upcoming</h3>
                         <span class="task-badge" id="listCount">0</span>
                     </div>
-                    <div id="taskList" class="scroll-list">
-                        <!-- Dynamic content -->
-                    </div>
+                    <div id="taskList" class="scroll-list"></div>
                 </div>
             </aside>
         </main>
     </div>
 
-    <!-- Custom Confirmation Modal -->
     <div id="customModal" class="modal-overlay">
         <div class="modal-window">
             <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
