@@ -23,11 +23,11 @@
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     margin: 0;
-    min-height: 100vh;
+    min-height: 100vh; /* Ensures dark background fills the whole screen */
     background: var(--bg-gradient);
     color: var(--text-main);
     padding: 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
 }
 
 .app-container { max-width: 1300px; margin: 0 auto; }
@@ -35,22 +35,38 @@ body {
 /* Header Styles */
 .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
 .brand-group { display: flex; align-items: center; gap: 15px; }
-.logo-icon { font-size: 2.5rem; }
+.brand-logo-img { width: 45px; height: 45px; object-fit: contain; border-radius: 8px; }
 .brand-text h1 { margin: 0; font-size: 1.6rem; font-weight: 800; }
 .brand-text h1 span { color: var(--primary); }
+
+/* Buttons & Elements */
+.header-status { display: flex; align-items: center; }
+
+.notif-badge-btn {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-right: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.notif-badge-btn.active { background: #10b981; }
 
 .clock-display {
     background: var(--card);
     padding: 10px 18px;
     border-radius: 12px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: monospace;
     font-weight: bold;
     color: var(--primary);
-    box-shadow: var(--shadow);
     border: 1px solid var(--border);
+    margin-right: 15px;
+    box-shadow: var(--shadow);
 }
 
-/* Button & Interactions */
 .theme-btn, .add-btn {
     background: var(--primary);
     color: white;
@@ -61,30 +77,23 @@ body {
     font-weight: 600;
     transition: all 0.2s ease;
 }
-
 .theme-btn:hover, .add-btn:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
-.theme-btn:active, .add-btn:active { transform: translateY(0); }
-
-/* Card & Layout */
+/* Layout Cards */
 .card {
     background: var(--card);
     border-radius: 20px;
     padding: 24px;
     border: 1px solid var(--border);
-    box-shadow: var(--shadow);
     margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--shadow);
 }
 
-.card:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1); }
-
 .controls-grid { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
-.input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+.input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
 
 input, select {
     padding: 12px;
@@ -93,93 +102,64 @@ input, select {
     color: var(--text-main);
     border-radius: 12px;
     outline: none;
-    transition: border-color 0.2s ease;
 }
 input:focus { border-color: var(--primary); }
 
 .content-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 1024px) { .content-layout { grid-template-columns: 1fr 350px; } }
 
-/* Stats Boxes */
+/* Sidebar Sections */
+.stats-container { display: flex; gap: 10px; margin-top: 15px; }
 .stat-box {
     flex: 1;
     background: var(--input-bg);
     padding: 15px;
     border-radius: 15px;
     text-align: center;
-    transition: all 0.3s ease;
+    border: 1px solid var(--border);
 }
-.stat-box:hover { background: var(--card); border: 1px solid var(--primary); }
 .urgent-border { border-top: 3px solid #ef4444; }
 .stat-num { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
 .urgent-text { color: #ef4444 !important; }
 
-/* Task List Items */
+.list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.task-badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; }
+.scroll-list { max-height: 400px; overflow-y: auto; }
+
 .task-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 15px;
     background: var(--input-bg);
     border-radius: 15px;
     margin-bottom: 10px;
     border-left: 5px solid var(--primary);
-    transition: all 0.2s ease;
 }
-.task-item:hover { transform: translateX(5px); background: var(--card); box-shadow: var(--shadow); }
 
-/* Modal UI */
+/* Modals */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center; z-index: 2000;
+    background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000;
 }
 .modal-window { background: var(--card); padding: 30px; border-radius: 20px; text-align: center; width: 320px; }
 .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.modal-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
-.modal-actions button:hover { opacity: 0.8; }
+.modal-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
 .btn-danger { background: #ef4444; color: white; }
 .btn-secondary { background: var(--border); color: var(--text-main); }
 
-@media (min-width: 1024px) {
-    .content-layout { grid-template-columns: 1fr 350px; }
-}
-
-/* FullCalendar Custom Theme */
-.fc { background: var(--card); border-radius: 15px; overflow: hidden; border: none !important; }
+/* FullCalendar Custom Theme Rules for Dark Mode */
+.fc { background: var(--card); border-radius: 15px; overflow: hidden; }
 .fc-theme-standard td, .fc-theme-standard th { border: 1px solid var(--border) !important; }
 .fc .fc-button-primary { background-color: var(--primary) !important; border: none !important; }
 .fc .fc-button-primary:hover { background-color: var(--primary-hover) !important; }
 
-/* Logo Styling */
-.brand-logo {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    border-radius: 10px; /* Optional: smooths the corners of the square image */
-}
-
-/* Notification Badge */
-.notif-badge {
-    font-size: 0.8rem;
-    padding: 8px 12px;
-    border-radius: 20px;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    margin-right: 10px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.notif-badge.active {
-    background: #10b981;
-    color: white;
-    border-color: #10b981;
-}
-
-/* Adjusting header for new elements */
-.header-status {
-    display: flex;
-    align-items: center;
+/* Forces FullCalendar text color switches in Dark Mode */
+:root[data-theme="dark"] .fc { color: var(--text-main); }
+:root[data-theme="dark"] .fc-toolbar-title { color: var(--text-main); }
+:root[data-theme="dark"] .fc-col-header-cell-cushion,
+:root[data-theme="dark"] .fc-daygrid-day-number,
+:root[data-theme="dark"] .fc-list-day-text,
+:root[data-theme="dark"] .fc-list-day-side-text {
+    color: var(--text-main) !important;
 }
