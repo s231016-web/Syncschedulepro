@@ -13,7 +13,7 @@
     <div class="app-container">
         <header class="main-header">
             <div class="brand-group">
-                <img src="SYNC.png" width=200 alt="Logo" class="brand-logo-img">
+                <img src="SYNC.png" alt="Logo" class="brand-logo-img">
                 <div class="brand-text">
                     <h1>SyncSchedule <span>Pro</span></h1>
                     <p id="dateDisplay">Loading date...</p>
@@ -21,7 +21,7 @@
             </div>
             
             <div class="header-status">
-                <button id="notifBtn" class="notif-badge-btn" onclick="requestNotificationPermission()">
+                <button id="notifBtn" class="notif-btn" onclick="requestNotificationPermission()">
                     🔔 Enable Alerts
                 </button>
                 <div id="liveClock" class="clock-display">00:00:00</div>
@@ -81,7 +81,8 @@
                         <h3 style="margin: 0;">Upcoming</h3>
                         <span class="task-badge" id="listCount">0</span>
                     </div>
-                    <div id="taskList" class="scroll-list"></div>
+                    <div id="taskList" class="scroll-list">
+                        </div>
                 </div>
             </aside>
         </main>
