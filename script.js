@@ -78,6 +78,7 @@ function checkNotifications() {
 }
 
 // Function to handle showing the visual alert screen overlay
+// Function to handle showing the visual alert screen overlay
 function showEventAlert(taskTitle) {
     const alertModal = document.getElementById('alertModal');
     const alertBody = document.getElementById('alertModalBody');
@@ -90,12 +91,29 @@ function showEventAlert(taskTitle) {
     // Display the modal instantly
     alertModal.style.display = 'flex';
 
+    // 🔊 NEW: Trigger the audio alert
+    playAlertSound();
+
     // Event listener to close the notification when acknowledged
     dismissBtn.onclick = () => {
         alertModal.style.display = 'none';
     };
 }
 
+// NEW: Helper function to play a crisp notification chime
+function playAlertSound() {
+    // Uses a clean, royalty-free digital chime URL. 
+    // You can swap this URL out for a local file (e.g., 'alert.mp3') if preferred!
+    const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_7356260c64.mp3');
+    
+    audio.volume = 0.6; // Adjust volume from 0.0 to 1.0
+    
+    audio.play().catch(error => {
+        // Mobile browsers sometimes block audio autoplay until a user interacts 
+        // with the screen at least once. This catch block prevents the app from crashing.
+        console.log("Audio playback blocked by mobile browser autoplay restrictions:", error);
+    });
+}
 function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme') || 'light';
