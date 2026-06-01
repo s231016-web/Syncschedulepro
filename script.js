@@ -46,19 +46,26 @@ function updateNotifUI() {
 }
 
 function checkNotifications() {
-    if (Notification.permission !== "granted") return;
+    // REMOVED: The strict notification permission block so the function executes on all devices
     const now = Date.now();
     let hasUpdates = false;
 
     myEvents.forEach(event => {
         const eventTime = new Date(event.start).getTime();
-        // Reliably triggers if current time passes the event target and hasn't notified yet
+        
         if (now >= eventTime && !event.notified) {
-            new Notification("SyncSchedule Reminder", {
-                body: `Starting Now: ${event.title}`,
-                icon: "SYNC.png",
-                requireInteraction: true
-            });
+            // Fix 1: Desktop Push Notification System (Fallback for supported environments like Mac Safari)
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("SyncSchedule Reminder", {
+                    body: `Starting Now: ${event.title}`,
+                    icon: "SYNC.png",
+                    requireInteraction: true
+                });
+            }
+            
+            // Fix 2: Global Cross-Browser Visual Alert Screen (Works flawlessly on Phone, Chrome, Safari)
+            showEventAlert(event.title);
+
             event.notified = true;
             hasUpdates = true;
         }
@@ -68,6 +75,25 @@ function checkNotifications() {
         localStorage.setItem('events', JSON.stringify(myEvents));
         renderUpcomingList();
     }
+}
+
+// Function to handle showing the visual alert screen overlay
+function showEventAlert(taskTitle) {
+    const alertModal = document.getElementById('alertModal');
+    const alertBody = document.getElementById('alertModalBody');
+    const dismissBtn = document.getElementById('dismissAlertBtn');
+    
+    if (!alertModal || !alertBody || !dismissBtn) return;
+
+    // Inject the task title dynamically into the alert screen text
+    alertBody.innerText = taskTitle;
+    // Display the modal instantly
+    alertModal.style.display = 'flex';
+
+    // Event listener to close the notification when acknowledged
+    dismissBtn.onclick = () => {
+        alertModal.style.display = 'none';
+    };
 }
 
 function initTheme() {
