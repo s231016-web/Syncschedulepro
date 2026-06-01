@@ -47,12 +47,13 @@ function updateNotifUI() {
 
 function checkNotifications() {
     if (Notification.permission !== "granted") return;
-    const now = new Date().getTime();
+    const now = Date.now();
     let hasUpdates = false;
 
     myEvents.forEach(event => {
         const eventTime = new Date(event.start).getTime();
-        if (Math.abs(now - eventTime) < 2000 && !event.notified) {
+        // Reliably triggers if current time passes the event target and hasn't notified yet
+        if (now >= eventTime && !event.notified) {
             new Notification("SyncSchedule Reminder", {
                 body: `Starting Now: ${event.title}`,
                 icon: "SYNC.png",
@@ -65,6 +66,7 @@ function checkNotifications() {
 
     if (hasUpdates) {
         localStorage.setItem('events', JSON.stringify(myEvents));
+        renderUpcomingList();
     }
 }
 
@@ -83,11 +85,14 @@ function initTheme() {
     });
 }
 
+function updateClockDisplay() {
+    const now = new Date();
+    document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-US');
+}
+
 function initClock() {
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-US');
-    }, 1000);
+    updateClockDisplay(); // Run once immediately to avoid 1-second blank flash
+    setInterval(updateClockDisplay, 1000);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', options);
 }
@@ -100,9 +105,22 @@ function initCalendar() {
         events: myEvents,
         height: 'auto',
         editable: true,
-        eventClick: (info) => showDeleteModal(info.event.id)
+        eventClick: (info) => showDeleteModal(info.event.id),
+        // Persist drag, drop, and resize adjustments back into your array
+        eventDrop: (info) => handleEventMove(info.event),
+        eventResize: (info) => handleEventMove(info.event)
     });
     calendar.render();
+}
+
+function handleEventMove(fcEvent) {
+    const match = myEvents.find(e => e.id === fcEvent.id);
+    if (match) {
+        match.start = fcEvent.start.toISOString();
+        // Silences past alerts if dragged backward, or rearms it if dragged to the future
+        match.notified = new Date(match.start).getTime() < Date.now();
+        saveAndRefresh();
+    }
 }
 
 function addSchedule() {
@@ -113,6 +131,8 @@ function addSchedule() {
 
     if (!title) return alert("Please enter a task name!");
 
+    const eventStartTime = time ? new Date(time).getTime() : Date.now();
+
     const newEvent = {
         id: Date.now().toString(),
         title: title,
@@ -120,7 +140,7 @@ function addSchedule() {
         backgroundColor: color,
         borderColor: color,
         textColor: '#ffffff',
-        notified: false
+        notified: eventStartTime < Date.now() // Instantly silences notification if set in the past
     };
 
     myEvents.push(newEvent);
@@ -140,7 +160,8 @@ function initModal() {
     document.getElementById('confirmBtn').onclick = () => {
         if (deleteId) {
             myEvents = myEvents.filter(e => e.id !== deleteId);
-            calendar.getEventById(deleteId).remove();
+            const fcEvent = calendar.getEventById(deleteId);
+            if (fcEvent) fcEvent.remove();
             saveAndRefresh();
             modal.style.display = 'none';
         }
