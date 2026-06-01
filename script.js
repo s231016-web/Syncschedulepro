@@ -191,7 +191,15 @@ function renderUpcomingList() {
         const div = document.createElement('div');
         div.className = 'task-item';
         div.style.borderLeftColor = event.backgroundColor;
-        div.innerHTML = `<div><strong>${event.title}</strong><br><small>${new Date(event.start).toLocaleString()}</small></div>`;
+        
+        // Added an inline delete button to utilize your CSS 'justify-content: space-between'
+        div.innerHTML = `
+            <div>
+                <strong>${event.title}</strong><br>
+                <small>${new Date(event.start).toLocaleString()}</small>
+            </div>
+            <button class="inline-del-btn" onclick="showDeleteModal('${event.id}')" title="Delete Task">❌</button>
+        `;
         list.appendChild(div);
     });
 }
